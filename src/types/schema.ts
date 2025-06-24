@@ -26,6 +26,10 @@ export type ValueSchemaReal = {
   type: 'real';
 } & ValueSchemaMetadata;
 
+export type ValueSchemaSecret = {
+  type: 'secret';
+} & ValueSchemaMetadata;
+
 export type ValueSchemaSeries = {
   items: ValueSchema;
   type: 'series';
@@ -68,6 +72,7 @@ export type ValueSchema =
   | ValueSchemaInt
   | ValueSchemaPath
   | ValueSchemaReal
+  | ValueSchemaSecret
   | ValueSchemaSeries
   | ValueSchemaString
   | ValueSchemaStruct
