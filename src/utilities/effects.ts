@@ -7214,6 +7214,7 @@ const effects = {
 
   async validateActivityArguments(
     activityTypeName: string,
+    activityId: number,
     modelId: number,
     argumentsMap: ArgumentsMap,
     user: User | null,
@@ -7236,7 +7237,7 @@ const effects = {
         throw Error('Unable to validate activity arguments');
       }
     } catch (e) {
-      catchError(e as Error);
+      catchError(e as Error, `Invalid arguments for activity with ID: "${activityId}"`);
       const { message } = e as Error;
       return { errors: [{ message } as ParameterValidationError], success: false };
     }
