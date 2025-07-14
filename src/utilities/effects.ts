@@ -736,7 +736,7 @@ const effects = {
     actionDefinitionId: number,
     parameters: any,
     settings: any,
-    secrets: boolean,
+    hasSecrets: boolean,
     user: User | null,
   ): Promise<number | null> {
     try {
@@ -746,8 +746,8 @@ const effects = {
 
       const actionRunInsertInput = {
         action_definition_id: actionDefinitionId,
+        has_secrets: hasSecrets,
         parameters,
-        secrets,
         settings,
       };
       const response = await reqHasura<{ id: number }>(gql.CREATE_ACTION_RUN, { actionRunInsertInput }, user);
@@ -5958,6 +5958,29 @@ const effects = {
     }
   },
 
+  async sendActionSecretParameters(secretParameters: any, actionRunId: number, user: User | null): Promise<void> {
+    try {
+      if (!queryPermissions.CREATE_ACTION_RUN(user)) {
+        throwPermissionError('send action secret parameters');
+      }
+
+      const body = {
+        action_run_id: actionRunId,
+        secrets: secretParameters,
+      };
+
+      try {
+        await reqActionServer<any>('/secrets', 'POST', JSON.stringify(body));
+      } catch (e) {
+        catchError(e as Error);
+        throw Error('Action secrets failed being sent to the Actions server');
+      }
+    } catch (e) {
+      catchError('Sending Action Secret Parameters Failed', e as Error);
+      showFailureToast('Sending Action Secret Parameters Failed');
+    }
+  },
+
   async sendSequenceToWorkspace(
     sequence: ExpansionSequence | null,
     expandedSequence: string | null,
@@ -5994,29 +6017,6 @@ const effects = {
       }
     } catch (e) {
       catchError(e as Error);
-    }
-  },
-
-  async sendActionSecretParameters(secretParameters: any, actionRunId: number, user: User | null): Promise<void> {
-    try {
-      if (!queryPermissions.CREATE_ACTION_RUN(user)) {
-        throwPermissionError('send action secret parameters');
-      }
-
-      const body = {
-        action_run_id: actionRunId,
-        secrets: secretParameters,
-      };
-
-      try {
-        await reqActionServer<any>('/secrets', 'POST', JSON.stringify(body));
-      } catch (e) {
-        catchError(e as Error);
-        throw Error('Action secrets failed being sent to the Actions server');
-      }
-    } catch (e) {
-      catchError('Sending Action Secret Parameters Failed', e as Error);
-      showFailureToast('Sending Action Secret Parameters Failed');
     }
   },
 
